@@ -5,7 +5,10 @@
   },
   "dependencies": {
     "discord.js": "^14.26.4",
-    "hono": "^4.12.25"
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.25",
+    "winston": "^3.19.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bun": "latest"

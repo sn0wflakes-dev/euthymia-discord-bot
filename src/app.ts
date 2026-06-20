@@ -1,70 +1,33 @@
 import { Hono } from 'hono'
-import {Events, Client, GatewayIntentBits, Collection, REST} from "discord.js";
-import {join} from "node:path"
-import {readdirSync} from "node:fs"
+import { createBot, startBot } from './bot'
+import { log } from './config/logging';
+import { env } from './config/env';
+import { serve } from 'bun';
 
-const app = new Hono()
+const client = createBot();
 
-export const token = process.env.DISCORD_TOKEN;
-export const clientId = process.env.DISCORD_APPLICATION_ID;
-export const guildId = process.env.DISCORD_GUILD_ID;
+startBot(client).catch((error) => {
+  log.error(`Failed to starting bot`, error);
+  process.exit(1);
+});
 
-const client = new Client({intents: [GatewayIntentBits.Guilds]})
+const app = new Hono();
 
-client.once(Events.ClientReady, (clientReady) => {
-    console.log(`Ready logged-in as ${clientReady.user.tag}`)
-})
+app.get("/", (c) => c.text("Valorant Lineup Bot is running"));
 
-client.login(token)
+app.get("/health", (c) =>
+  c.json({
+    status: "ok",
+    bot: client.isReady() ? "connected" : "connecting",
+    uptime: process.uptime(),
+  })
+);
 
-client.commands = new Collection();
+serve({
+  port: env.PORT,
+  fetch: app.fetch
+});
 
-const dirPath = join(__dirname, 'commands')
-const commandDir = readdirSync(dirPath);
+log.info(`Server is running on port ${env.PORT}`);
 
-(async () => {
-    for (const directory of commandDir) {
-        const commandPath = join(dirPath, directory);
-        const commandFile = readdirSync(commandPath).filter((file) => file.endsWith('.ts'));
 
-        for (const file of commandFile) {
-            const filePath = join(commandPath, file);
-            const command = (await import(filePath)).default;
-
-            if ('data' in command && 'execute' in command) {
-                client.commands.set(command.data.name, command);
-            } else {
-                console.log(`[WARNING] The command at ${filePath} is missing required data or execute property`);
-            }
-        }
-    }
-})();
-
-client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand) return;
-
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-        console.error(`[ERR] No command matching ${interaction.commandName} was found`);
-        return;
-    }
-
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error(error);
-        if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({
-                content: 'There was an error while executing this command !',
-                flags: MessageFlags.Ephemeral
-            })
-        } else {
-            await interaction.reply({
-                content: 'There was an error while executing this command!',
-                flags: MessageFlags.Ephemeral,
-            })
-        }
-    }
-})
-export default app
