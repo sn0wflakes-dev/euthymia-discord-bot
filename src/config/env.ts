@@ -11,7 +11,8 @@ const envSchema = z.object({
   DISCORD_GUILD_ID: z.string(),
   DISCORD_PUBLIC_KEY: z.string(),
   DISCORD_APPLICATION_ID: z.string(),
-  API_BASE_URL: z.string()
+  API_BASE_URL: z.string(),
+  GRPC_NSFW_URL: z.string()
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

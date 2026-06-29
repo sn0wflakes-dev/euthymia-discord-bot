@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package nsfw;
+
+service NsfwClassifier {
+  rpc Classify(ClassifyRequest) returns (ClassifyResponse);
+}
+
+message ClassifyRequest {
+  bytes image_data = 1;
+  string filename = 2;
+}
+
+message ClassifyResponse {
+  string label = 1;
+  float confidence = 2;
+  
+  float prob_sfw = 3;
+  float prob_sketchy = 4;
+  float prob_nsfw = 5;
+  
+  float latency_ms = 6;
+
+  string filename = 7;
+}

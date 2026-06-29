@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, Collection, SharedSlashCommand, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, Client, Collection, SharedSlashCommand} from "discord.js";
 import * as agent from "../commands/reference/agent";
 import { log } from "../config/logging";
 

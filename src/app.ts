@@ -13,7 +13,7 @@ startBot(client).catch((error) => {
 
 const app = new Hono();
 
-app.get("/", (c) => c.text("Valorant Lineup Bot is running"));
+app.get("/", (c) => c.text("Euthymia Bot is running"));
 
 app.get("/health", (c) =>
   c.json({
